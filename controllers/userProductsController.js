@@ -1,7 +1,8 @@
 var connection = require('../connection');
 
 function productsList(req,res){
-    connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?',[req.params.id],(err,rows)=>{
+    console.log('id from req parameters: '+req.query.id);
+    connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?',[req.query.id],(err,rows)=>{
     
     if(err){
         console.log(err);
