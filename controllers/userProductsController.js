@@ -5,6 +5,7 @@ function productsList(req,res){
     
     if(err){
         console.log(err);
+        return res.err.status;
     }else{
         console.log(rows);
         return res.status(200).json(rows);
