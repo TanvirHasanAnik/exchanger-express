@@ -24,15 +24,21 @@ function addProduct(req,res){
   if(req.session.user){
     const user = req.session.user;
     const product = req.body;
-    const productData = [user.id,product.categoryid, product.productTitle, product.productDescription];
-    connection.query('INSERT INTO products(userid,categoryid,productTitle,productDescription) values(?)',[productData],(err,rows)=>{
-        if(err){
-            console.log(err);
-        }else{
-            console.log(rows);
-            return res.status(200).json(rows);
-        }
-    })
+    if(product.categoryid != "" && product.productTitle != ""){
+      const productData = [user.id,product.categoryid, product.productTitle, product.productDescription];
+      connection.query('INSERT INTO products(userid,categoryid,productTitle,productDescription) values(?)',[productData],(err,rows)=>{
+          if(err){
+              console.log(err);
+          }else{
+              console.log(rows);
+              return res.status(200).json({message: 'Item Added'});
+          }
+      })
+    }else{
+      return res.status(400).json({message: 'Category and title should not be empty'});
+    }
+  } else{
+    return res.status(400).json({message: 'Not logged in'});
   }
 }
 
@@ -42,7 +48,7 @@ function getCategory(req,res){
           console.log(err);
       }else{
           console.log(rows);
-          return res.send(rows);
+          return res.status(200).json(rows);
       }
   })
 }
