@@ -30,7 +30,7 @@ function login(req, res) {
       return res.status(400).json({message: 'password is required'});
     }
     var queriedpass = "";
-    connection.query('SELECT password FROM users WHERE username=?',body.username,(err,rows)=>{
+    connection.query('SELECT id,password FROM users WHERE username=?',body.username,(err,rows)=>{
       if(err){
           console.log(err);
       }else{
@@ -40,10 +40,13 @@ function login(req, res) {
           }else{
               console.log(rows);
               queriedpass = rows[0].password;
+              queriedid = rows[0].id;
               console.log(queriedpass);
               if(body.password == queriedpass){
                 console.log("login successful");
-                return res.status(200).json({message: 'login successful'});
+                req.session.user = {id:queriedid, username:body.username}
+                console.log(req.session);
+                res.status(200).json({message: 'login successful'});
               } else {
                 return res.status(400).json({message: 'Username or password not correct'});
               }
