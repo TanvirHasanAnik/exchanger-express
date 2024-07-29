@@ -55,4 +55,15 @@ function login(req, res) {
   })
   }
 
-  module.exports = {register,login};
+  function logout(req, res){
+        req.session.destroy((err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error logging out');
+            } else {
+                res.status(200).send('Logged out');
+            }
+        });
+    };
+
+  module.exports = {register,login,logout};
