@@ -30,10 +30,21 @@ function addProduct(req,res){
             console.log(err);
         }else{
             console.log(rows);
-            return res.send(rows);
+            return res.status(200).json(rows);
         }
     })
   }
 }
 
-module.exports = {productsList,addProduct};
+function getCategory(req,res){
+  connection.query('SELECT * FROM category order by categoryname',(err,rows)=>{
+      if(err){
+          console.log(err);
+      }else{
+          console.log(rows);
+          return res.send(rows);
+      }
+  })
+}
+
+module.exports = {productsList,addProduct,getCategory};
