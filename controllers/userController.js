@@ -61,6 +61,7 @@ function login(req, res) {
                 console.error(err);
                 res.status(500).send('Error logging out');
             } else {
+                console.log('logged out');
                 res.status(200).send('Logged out');
             }
         });
