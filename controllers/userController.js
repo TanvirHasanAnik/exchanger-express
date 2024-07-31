@@ -7,6 +7,20 @@ function register(req,res){
     if(!body.username || !body.password || !body.address){
       return res.status(400).json({message: 'All required fields are not filled'});
     }
+    if (body.email != "") {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      isEmailValid = emailPattern.test(body.email);
+      if(isEmailValid == false){
+        return res.status(400).json({message: 'Invalid email pattern'});
+      }
+    } 
+    if (body.phone != "") {
+      const phonePattern = /(01)[3-9]{1}\d{8}/;
+      isPhoneValid = phonePattern.test(body.phone);
+      if(isPhoneValid == false){
+        return res.status(400).json({message: 'Invalid Bangladeshi phone number'});
+      }
+    } 
     connection.query('INSERT INTO users(username,password,address,email,phone) values(?)',[bodyData],(err,rows)=>{
       if(err){
           console.log(err);
