@@ -5,7 +5,7 @@ function register(req,res){
     const body = req.body;
     const bodyData = [body.username,body.password, body.address, body.email, body.phone]
     if(!body.username || !body.password || !body.address){
-      return res.status(400).json({message: 'All fields are not filled'});
+      return res.status(400).json({message: 'All required fields are not filled'});
     }
     connection.query('INSERT INTO users(username,password,address,email,phone) values(?)',[bodyData],(err,rows)=>{
       if(err){
