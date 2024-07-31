@@ -3,11 +3,11 @@ var connection = require('../connection');
 function register(req,res){
     console.log(req.body);
     const body = req.body;
-    const bodyData = [body.username,body.password]
-    if(!body.username || !body.password){
+    const bodyData = [body.username,body.password, body.address, body.email, body.phone]
+    if(!body.username || !body.password || !body.address){
       return res.status(400).json({message: 'All fields are not filled'});
     }
-    connection.query('INSERT INTO users(username,password) values(?)',[bodyData],(err,rows)=>{
+    connection.query('INSERT INTO users(username,password,address,email,phone) values(?)',[bodyData],(err,rows)=>{
       if(err){
           console.log(err);
           if(err.code == "ER_DUP_ENTRY"){

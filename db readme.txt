@@ -1,8 +1,11 @@
 users:
 create table users (
     id int not null auto_increment unique primary key,
-    username varchar(30) not null unique,
-    password varchar(30) not null
+    username varchar(255) not null unique,
+    password varchar(255) not null,
+    address varchar(255) not null,
+    email varchar(255),
+    phone varchar(14),
 )
 
 create table products (
