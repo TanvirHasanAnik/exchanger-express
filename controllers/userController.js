@@ -1,5 +1,18 @@
 var connection = require('../connection');
 
+function getProfile(req,res){
+  const user = req.session.user;
+  connection.query('SELECT username,address,email,phone FROM users where id = ?',user.id,(err,rows)=>{
+      if(err){
+          console.log(err);
+          return res.status(err.status).json({message: err.message});
+      }else{
+          console.log(rows);
+          return res.status(200).json(rows);
+      }
+  })
+}
+
 function register(req,res){
     console.log(req.body);
     const body = req.body;
@@ -81,4 +94,4 @@ function login(req, res) {
         });
     };
 
-  module.exports = {register,login,logout};
+  module.exports = {getProfile,register,login,logout};
