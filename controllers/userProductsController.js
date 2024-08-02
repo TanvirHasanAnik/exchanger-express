@@ -53,7 +53,23 @@ function getCategory(req,res){
   })
 }
 
-function expectedProduct(req,res){
+function getExpectedProductList(req,res){
+  if(req.session.user){
+  const user = req.session.user;
+  connection.query('SELECT categoryname from category inner join expectedproduct on expectedproduct.categoryid = category.id where expectedproduct.userid = ?',user.id,(err,rows)=>{
+      if(err){
+          console.log(err);
+      }else{
+          console.log(rows);
+          return res.status(200).json(rows);
+      }
+  })
+  }else{
+    return res.status(400).json({message: 'Not logged in'});
+  }
+}
+
+function addExpectedProduct(req,res){
   if(req.session.user){
     const user = req.session.user;
     const product = req.body;
@@ -78,4 +94,4 @@ function expectedProduct(req,res){
   }
 }
 
-module.exports = {productsList,addProduct,getCategory,expectedProduct};
+module.exports = {productsList,addProduct,getCategory,addExpectedProduct,getExpectedProductList};
