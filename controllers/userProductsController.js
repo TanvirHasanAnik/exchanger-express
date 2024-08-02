@@ -53,4 +53,29 @@ function getCategory(req,res){
   })
 }
 
-module.exports = {productsList,addProduct,getCategory};
+function expectedProduct(req,res){
+  if(req.session.user){
+    const user = req.session.user;
+    const product = req.body;
+    if(product.categoryid != ""){
+      const productData = [user.id,product.categoryid];
+      connection.query('INSERT INTO expectedproduct(userid,categoryid) values(?)',[productData],(err,rows)=>{
+        if(err){
+          console.log(err);
+          if(err.code == "ER_DUP_ENTRY"){
+            return res.status(400).json({message: 'category already exists'});
+          }
+        }else{
+              console.log(rows);
+              return res.status(200).json({message: 'Item Added'});
+          }
+      })
+    }else{
+      return res.status(400).json({message: 'Category not choosen'});
+    }
+  } else{
+    return res.status(400).json({message: 'Not logged in'});
+  }
+}
+
+module.exports = {productsList,addProduct,getCategory,expectedProduct};

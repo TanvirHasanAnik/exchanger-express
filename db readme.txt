@@ -22,6 +22,12 @@ create table category (
     productname varchar(30) not null unique
 )
 
+create table expectedproduct (
+    id int not null auto_increment unique primary key,
+    userid int not null,
+    categoryid int not null
+);
+
 get product list query: (SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?)
 
 select * from products
