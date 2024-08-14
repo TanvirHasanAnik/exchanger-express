@@ -42,6 +42,31 @@ function addProduct(req,res){
   }
 }
 
+function matchUser(req,res){
+  //load all expected category id of current user 
+  var usersWithExpectedProducts = [];
+  connection.query('SELECT categoryid FROM expectedproduct WHERE userid = 3',(err,expCategoryId)=>{
+      if(err){
+          console.log(err);
+      }else{
+        expCategoryId.forEach(categoryId => {
+          //load all user id that has product of this category 
+          connection.query('SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE categoryid = ?',categoryId,(err,userId)=>{
+              if(err){
+                  console.log(err);
+              }else{
+                userId.forEach(id => {
+                  if(!usersWithExpectedProducts.includes(id)){
+                    usersWithExpectedProducts.push(id);
+                  }
+                });
+              }
+          })
+        });
+      }
+  })
+}
+
 function getCategory(req,res){
   connection.query('SELECT * FROM category order by categoryname',(err,rows)=>{
       if(err){
