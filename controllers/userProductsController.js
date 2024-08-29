@@ -42,30 +42,81 @@ function addProduct(req,res){
   }
 }
 
-function matchUser(req,res){
-  //load all expected category id of current user 
-  var usersWithExpectedProducts = [];
-  connection.query('SELECT categoryid FROM expectedproduct WHERE userid = 3',(err,expCategoryId)=>{
-      if(err){
-          console.log(err);
-      }else{
-        expCategoryId.forEach(categoryId => {
-          //load all user id that has product of this category 
-          connection.query('SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE categoryid = ?',categoryId,(err,userId)=>{
-              if(err){
-                  console.log(err);
-              }else{
-                userId.forEach(id => {
-                  if(!usersWithExpectedProducts.includes(id)){
-                    usersWithExpectedProducts.push(id);
-                  }
-                });
-              }
-          })
-        });
-      }
-  })
+
+//-------------------------------------------------experimental--------------------------------
+function expectedCategoryId(userId){
+    //load all expected category id of current user 
+    connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',userId,(err,expCategoryId)=>{
+        if(err){
+            console.log(err);
+        }else{
+          userIdWithExpectedProduct(expCategoryId);
+        }
+    });
 }
+
+function userIdWithExpectedProduct(expCategoryId){
+  var ids = [];
+  expCategoryId.forEach(ecid => {
+    //load all user id that has product of this category 
+    connection.query('SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE categoryid = ?',ecid,(err,userId)=>{
+        if(err){
+            console.log(err);
+        }else{
+          userId.forEach(id => {
+            if(!ids.includes(id)){
+              ids.push(id);
+            }
+          });
+          if(expCategoryId[expCategoryId.length-1] === ecid){
+            asd(ids);
+          }
+        }
+    })
+  });
+}
+function asd(ids){
+  console.log(ids);
+}
+function matchUser(req,res){
+  const user = req.session.user;
+  expectedCategoryId(user.id);
+}
+
+function matchUserOLD(req,res){
+  if(req.session.user){
+    const user = req.session.user;
+    //load all expected category id of current user 
+    var usersWithExpectedProducts = [];
+    connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',user.id,(err,expCategoryId)=>{
+        if(err){
+            console.log(err);
+        }else{
+          expCategoryId.forEach(categoryId => {
+            //load all user id that has product of this category 
+            connection.query('SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE categoryid = ?',categoryId,(err,userId)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                  userId.forEach(id => {
+                    if(!usersWithExpectedProducts.includes(id)){
+                      usersWithExpectedProducts.push(id);
+                    }
+                  });
+                }
+            })
+          });
+        }
+    });
+    console.log(usersWithExpectedProducts);
+    
+  }else{
+    return res.status(400).json({message: 'Not logged in'});
+  }
+}
+//------------------------------------------------------------------------------------
+
+
 
 function getCategory(req,res){
   connection.query('SELECT * FROM category order by categoryname',(err,rows)=>{
@@ -119,4 +170,4 @@ function addExpectedProduct(req,res){
   }
 }
 
-module.exports = {productsList,addProduct,getCategory,addExpectedProduct,getExpectedProductList};
+module.exports = {productsList,addProduct,getCategory,addExpectedProduct,getExpectedProductList,matchUser};
