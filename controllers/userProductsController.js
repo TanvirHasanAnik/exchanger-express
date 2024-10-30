@@ -168,14 +168,11 @@ async function matchUser(req,res){
   
   console.log(expectedCategoryId);
   for (const expCatId of expectedCategoryId) {
-    console.log(expCatId);
     const [rows] = await connection.query(
         'SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE products.categoryid = ?',
         [expCatId.categoryid]
     );
-    console.log(rows);
     rows.forEach(row => {
-        console.log(row.id);
         if (!userIdWithExpectedProduct.includes(row.id)) {
             userIdWithExpectedProduct.push(row.id);
         }
