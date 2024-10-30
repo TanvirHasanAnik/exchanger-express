@@ -5,7 +5,7 @@ var mysqlConnnection = mysql.createConnection({
     port:'3307',
     password:'123456',
     database:'exchangerdb'
-})
+}).promise();
 
 mysqlConnnection.connect((err)=>{
     if(err){

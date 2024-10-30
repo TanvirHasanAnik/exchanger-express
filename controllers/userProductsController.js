@@ -160,9 +160,29 @@ function asd(ids,req,res){
 })
 }
 }
-function matchUser(req,res){
+async function matchUser(req,res){
   const user = req.session.user;
-  expectedCategoryId(user.id,req,res);
+  const userId = user.id;
+  const userIdWithExpectedProduct = [];
+  const [expectedCategoryId] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',userId);
+  
+  console.log(expectedCategoryId);
+  for (const expCatId of expectedCategoryId) {
+    console.log(expCatId);
+    const [rows] = await connection.query(
+        'SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE products.categoryid = ?',
+        [expCatId.categoryid]
+    );
+    console.log(rows);
+    rows.forEach(row => {
+        console.log(row.id);
+        if (!userIdWithExpectedProduct.includes(row.id)) {
+            userIdWithExpectedProduct.push(row.id);
+        }
+    });
+}
+
+  console.log("Exp product userid: "+userIdWithExpectedProduct);
 }
 
 function matchUserOld(req,res){
