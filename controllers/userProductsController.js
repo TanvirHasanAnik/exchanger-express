@@ -146,25 +146,36 @@ function asd(ids,req,res){
 }
 }
 async function matchUser(req,res){
-  const user = req.session.user;
-  const userId = user.id;
-  const userIdWithExpectedProduct = [];
-  const [expectedCategoryId] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',userId);
+  if(req.session.user){
+    const user = req.session.user;
+    const userId = user.id;
+    const userIdWithExpectedProduct = [];
+    const userArray = [];
+    const [expectedCategoryId] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',userId);
+    
+    console.log(expectedCategoryId);
+    for (const expCatId of expectedCategoryId) {
+      const [rows] = await connection.query(
+          'SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE products.categoryid = ?',
+          [expCatId.categoryid]
+      );
+      rows.forEach(row => {
+          if (!userIdWithExpectedProduct.includes(row.id)) {
+              userIdWithExpectedProduct.push(row.id);
+          }
+      });
+  }
+    console.log("Exp product userid: "+userIdWithExpectedProduct);
+    for(const x of userIdWithExpectedProduct){
+      console.log(x);
+      const [expUser] = await connection.query('SELECT * FROM users WHERE users.id = ?',[x]);
+      userArray.push(expUser[0]);
+    }
   
-  console.log(expectedCategoryId);
-  for (const expCatId of expectedCategoryId) {
-    const [rows] = await connection.query(
-        'SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE products.categoryid = ?',
-        [expCatId.categoryid]
-    );
-    rows.forEach(row => {
-        if (!userIdWithExpectedProduct.includes(row.id)) {
-            userIdWithExpectedProduct.push(row.id);
-        }
-    });
-}
-
-  console.log("Exp product userid: "+userIdWithExpectedProduct);
+    return res.status(200).json(userArray);
+  }else{
+    return res.status(400).json({message: 'Not logged in'});
+  }
 }
 
 function matchUserOld(req,res){
