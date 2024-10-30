@@ -1,52 +1,37 @@
 var connection = require('../connection');
 
-function allProductList(req,res){
-  connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id',(err,rows)=>{
-  
-  if(err){
-      console.log(err);
-      return res.err.status;
-  }else{
-      console.log(rows);
-      return res.status(200).json(rows);
+async function allProductList(req,res){
+  try {
+    const [result] = await connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id');
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Database query error:', error);
+    
+    return res.status(500).json({ 
+        error: 'Internal Server Error: Unable to retrieve product list.' 
+    });
   }
-})
 }
 
-function expectedProductList(req,res){
+async function expectedProductList(req,res){
   if(req.session.user){
-  const user = req.session.user;
-  var arr = [];
-  connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',user.id,(err,expCategoryId)=>{
-      if(err){
-        return res.status(500).json({ message: 'Database error' });
-      }
-      const promises = expCategoryId.map(expCatId => {
-        return new Promise((resolve,reject) => {
-          connection.query('SELECT categoryname,productTitle,productDescription from products inner join category on category.id = products.categoryid where category.id = ?',[expCatId.categoryid],(err,rows)=>{
-          if(err){
-              reject(err);
-          }else{
-              console.log(rows);
-              console.log("rows");
-              rows.forEach(row => {
-                  arr.push(row);
-              });
-              resolve();
-          }
+    try {
+      const user = req.session.user;
+      var arr = [];
+      const [result] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',user.id);
+      
+      for(const expCatId of result){
+        const [rows] = await connection.query('SELECT categoryname,productTitle,productDescription from products inner join category on category.id = products.categoryid where category.id = ?',[expCatId.categoryid]);
+        rows.forEach(row => {
+          arr.push(row);
         });
-      });
-      });
-      Promise.all(promises).then(() => {
-        console.log("arr"+JSON.stringify(arr));
-        return res.status(200).json(arr);
-      }).catch(error => {
-        console.error("Error fetching products:", error);
-        return res.status(500).json({ message: 'Error fetching product details' });
-      })
-  });
-  }
-  else{
+      }
+      return res.status(200).json(arr);
+    } catch (error) {
+      console.error('Database query error:', error);
+      return res.status(500).json({ message: 'Internal Server Error: Unable to retrieve expected product list.' });
+    }
+  }else{
     return res.status(400).json({message: 'Not logged in'});
   }
 }
