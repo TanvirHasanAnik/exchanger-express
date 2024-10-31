@@ -1,17 +1,18 @@
 var connection = require('../connection');
 
-function getProfile(req,res){
+async function getProfile(req,res){
   if(req.session.user){
-    const user = req.session.user;
-    connection.query('SELECT username,address,email,phone FROM users where id = ?',user.id,(err,rows)=>{
-        if(err){
-            console.log(err);
-            return res.status(err.status).json({message: err.message});
-        }else{
-            console.log(rows[0]);
-            return res.status(200).json(rows[0]);
-        }
-    })
+    try {
+      const reqUser = req.query.userid;
+      const loggedUser = req.session.user.id;
+      const user = reqUser;
+      console.log(req.query);
+      const [rows] = await connection.query('SELECT username,address,email,phone FROM users where id = ?',user);
+      console.log(rows[0]);
+      return res.status(200).json(rows[0]);
+    } catch (error) {
+      return res.status(500).json({message: 'Server error'});
+    }
   }else{
     return res.status(400).json({message: 'Not logged in'});
   }
