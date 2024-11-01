@@ -36,24 +36,23 @@ async function expectedProductList(req,res){
   }
 }
 
-function productsList(req,res){
-    if(req.session.user){
-    const user = req.session.user;
-    console.log(`session id:${req.sessionID}, user id ${user.id}`);
-    connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?',[user.id],(err,rows)=>{
+async function productsList(req,res){
+    var user = 0;
+      if(req.query.userid){
+        const reqUser = req.query.userid;
+        user = reqUser;
+      }
     
-    if(err){
-        console.log(err);
-        return res.err.status;
-    }else{
-        console.log(rows);
-        return res.status(200).json(rows);
+    else if(req.session.user){
+      const loggedUser = req.session.user.id;
+      user = loggedUser;
+    }else {
+      console.log('Please sign in')
+      return res.status(400).json({message: 'Not logged in'});
     }
-  })
-  }else {
-    console.log('Please sign in')
-    return res.status(400).json({message: 'Not logged in'});
-  }
+    const [products] = await connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?',user);
+    console.log(products);
+    return res.status(200).json(products);
 }
 
 function addProduct(req,res){
