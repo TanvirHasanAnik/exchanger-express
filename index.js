@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors');
 const userRouter = require('./routers/userRouter');
 const userProductRouter = require('./routers/userProductRouter');
+const reviwRouter = require('./routers/reviewRouter');
 const session = require('express-session');
 const store = new session.MemoryStore();
 const app = express();
@@ -25,6 +26,7 @@ app.use(session({
 
 app.use('/user',userRouter);
 app.use('/user-products', userProductRouter);
+app.use('/review',reviwRouter);
 app.listen(3000, ()=> {
     console.log('Listening on port 3000');
 });
