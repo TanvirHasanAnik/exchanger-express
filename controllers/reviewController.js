@@ -21,7 +21,27 @@ if(req.session.user){
 }
 
 async function getReview(req, res) {
-  
+    
+    var userid;
+    if(req.query.userid){
+        const reqUser = req.query.userid;
+        userid = reqUser;
+    }
+    else if(req.session.user){
+        const loggedUser = req.session.user.id;
+        userid = loggedUser;
+    }else {
+        console.log('Please sign in')
+        return httpMessage.notLoggedInError(res);
+    }
+
+    try {
+        const [reviews] = await connection.query('SELECT username,content FROM review INNER JOIN users ON review.reviewerid = users.id WHERE review.userid = ?',userid);
+        return res.status(200).json(reviews);
+    } catch (error) {
+        return httpMessage.serverError(res);
+    }
+    
 }
 
 module.exports = {addReview,getReview};
