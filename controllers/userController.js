@@ -21,7 +21,7 @@ async function getProfile(req,res){
 function register(req,res){
     console.log(req.body);
     const body = req.body;
-    const bodyData = [body.username,body.password, body.address, body.email, body.phone]
+    const bodyData = [body.username,body.password, body.address, body.email, body.phone];
     if(!body.username || !body.password || !body.address){
       return res.status(400).json({message: 'All required fields are not filled'});
     }
