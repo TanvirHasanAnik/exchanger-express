@@ -12,6 +12,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "mysql2": "^3.10.3"
+    "mysql2": "^3.10.3",
+    "vader-sentiment": "^1.1.3"
   }
 }

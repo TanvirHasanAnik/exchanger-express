@@ -1,5 +1,6 @@
 var connection = require('../connection');
 var httpMessage = require('../httpMessage');
+const vader = require('vader-sentiment');
 
 async function addReview(req, res) {
 if(req.session.user){
@@ -7,9 +8,20 @@ if(req.session.user){
         const userid = req.body.userid;
         const reviewerid = req.session.user.id;
         const content = req.body.content;
-        const body = [userid,reviewerid,content];
+        var positive = true;
+        function analyzeSentiment(text) {
+            const intensity = vader.SentimentIntensityAnalyzer.polarity_scores(text);
+            return intensity;
+        }
+        
+        const result = analyzeSentiment(content);
+        console.log('Sentiment Analysis Result:', result);
+        if(result.compound < -0.05){
+            positive = false;
+        }
+        const body = [userid,reviewerid,content,positive];
 
-        await connection.query('INSERT INTO review(userid,reviewerid,content) values(?)',[body]);
+        await connection.query('INSERT INTO review(userid,reviewerid,content,positive) values(?)',[body]);
         return httpMessage.success(res);
     } catch (error) {
         console.log(error);
@@ -44,4 +56,16 @@ async function getReview(req, res) {
     
 }
 
-module.exports = {addReview,getReview};
+async function sentiment () {
+    function analyzeSentiment(text) {
+        const intensity = vader.SentimentIntensityAnalyzer.polarity_scores(text);
+        return intensity;
+    }
+    
+    // Example usage
+    const textToAnalyze = "The user was very friendly but his product was defective";
+    const result = analyzeSentiment(textToAnalyze);
+    console.log('Sentiment Analysis Result:', result);
+}
+
+module.exports = {addReview,getReview,sentiment};
