@@ -83,8 +83,6 @@ async function getReviewCounts(req, res) {
         counts.total = (total != null) ? total : 0;
         counts.positive = (positive != null) ? positive : 0;
         counts.negative = (negative != null) ? negative : 0;
-        
-
         console.log(counts);
         return res.status(200).json(counts);
     } catch (error) {
