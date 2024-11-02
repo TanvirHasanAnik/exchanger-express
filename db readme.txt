@@ -28,6 +28,14 @@ create table expectedproduct (
     categoryid int not null
 );
 
+create table review (
+    id int not null auto_increment unique primary key,
+    userid int not null,
+    reviewerid int not null,
+    content text not null,
+    positive boolean
+);
+
 get product list query: (SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?)
 
 select * from products
