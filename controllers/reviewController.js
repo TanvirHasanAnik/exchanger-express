@@ -1,7 +1,7 @@
 var connection = require('../connection');
-var errorMessage = require('../errorMessages');
-async function addReview(req, res) {
+var httpMessage = require('../httpMessage');
 
+async function addReview(req, res) {
 if(req.session.user){
     try {
         const userid = req.body.userid;
@@ -10,12 +10,13 @@ if(req.session.user){
         const body = [userid,reviewerid,content];
 
         await connection.query('INSERT INTO review(userid,reviewerid,content) values(?)',[body]);
+        return httpMessage.success(res);
     } catch (error) {
         console.log(error);
-        return errorMessage.serverError;
+        return httpMessage.serverError(res);
     }
 }else{
-    return errorMessage.notLoggedIn;
+    return httpMessage.notLoggedIn(res);
  }
 }
 
