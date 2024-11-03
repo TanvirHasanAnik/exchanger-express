@@ -1,4 +1,5 @@
 var connection = require('../connection');
+var httpMessage = require('../httpMessage');
 
 async function allProductList(req,res){
   try {
@@ -37,7 +38,7 @@ async function expectedProductList(req,res){
 }
 
 async function productsList(req,res){
-    var user = 0;
+    var user;
       if(req.query.userid){
         const reqUser = req.query.userid;
         user = reqUser;
@@ -55,20 +56,20 @@ async function productsList(req,res){
     return res.status(200).json(products);
 }
 
-function addProduct(req,res){
+async function addProduct(req,res){
   if(req.session.user){
     const user = req.session.user;
     const product = req.body;
     if(product.categoryid != "" && product.productTitle != ""){
       const productData = [user.id,product.categoryid, product.productTitle, product.productDescription];
-      connection.query('INSERT INTO products(userid,categoryid,productTitle,productDescription) values(?)',[productData],(err,rows)=>{
-          if(err){
-              console.log(err);
-          }else{
-              console.log(rows);
-              return res.status(200).json({message: 'Item Added'});
-          }
-      })
+      try {
+        await connection.query('INSERT INTO products(userid,categoryid,productTitle,productDescription) values(?)',[productData]);
+        console.log(rows);
+        return res.status(200).json({message: 'Item Added'});
+      } catch (error) {
+        console.log(error);
+        return httpMessage.serverError(res);
+      }
     }else{
       return res.status(400).json({message: 'Category and title should not be empty'});
     }
@@ -215,15 +216,15 @@ function matchUserOld(req,res){
 
 
 
-function getCategory(req,res){
-  connection.query('SELECT * FROM category order by categoryname',(err,rows)=>{
-      if(err){
-          console.log(err);
-      }else{
-          console.log(rows);
-          return res.status(200).json(rows);
-      }
-  })
+async function getCategory(req,res){
+  try {
+    [rows] = await connection.query('SELECT * FROM category order by categoryname');
+    console.log(rows);
+    return res.status(200).json(rows);
+  } catch (error) {
+    console.log(error);
+    return httpMessage.serverError(res);
+  }
 }
 
 function getExpectedProductList(req,res){
@@ -242,23 +243,24 @@ function getExpectedProductList(req,res){
   }
 }
 
-function addExpectedProduct(req,res){
+async function addExpectedProduct(req,res){
   if(req.session.user){
     const user = req.session.user;
     const product = req.body;
     if(product.categoryid != ""){
       const productData = [user.id,product.categoryid];
-      connection.query('INSERT INTO expectedproduct(userid,categoryid) values(?)',[productData],(err,rows)=>{
-        if(err){
+      try {
+        await connection.query('INSERT INTO expectedproduct(userid,categoryid) values(?)',[productData]);
+        console.log(rows);
+        return res.status(200).json({message: 'Item Added'});
+      } catch (error) {
           console.log(err);
-          if(err.code == "ER_DUP_ENTRY"){
+          if(error.code == "ER_DUP_ENTRY"){
             return res.status(400).json({message: 'category already exists'});
+          }else{
+            return httpMessage.serverError(res);
           }
-        }else{
-              console.log(rows);
-              return res.status(200).json({message: 'Item Added'});
-          }
-      })
+      }
     }else{
       return res.status(400).json({message: 'Category not choosen'});
     }

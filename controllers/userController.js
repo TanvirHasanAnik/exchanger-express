@@ -1,24 +1,31 @@
 var connection = require('../connection');
+var httpMessage = require('../httpMessage');
 
 async function getProfile(req,res){
-  if(req.session.user){
-    try {
+  var user;
+    if(req.query.userid){
       const reqUser = req.query.userid;
-      const loggedUser = req.session.user.id;
-      const user = reqUser;
-      console.log(req.query);
-      const [rows] = await connection.query('SELECT username,address,email,phone FROM users where id = ?',user);
-      console.log(rows[0]);
-      return res.status(200).json(rows[0]);
-    } catch (error) {
-      return res.status(500).json({message: 'Server error'});
+      user = reqUser;
     }
-  }else{
+  
+  else if(req.session.user){
+    const loggedUser = req.session.user.id;
+    user = loggedUser;
+  }else {
+    console.log('Please sign in')
     return res.status(400).json({message: 'Not logged in'});
+  }
+  try {
+    console.log(req.query);
+    const [rows] = await connection.query('SELECT username,address,email,phone FROM users where id = ?',user);
+    console.log(rows[0]);
+    return res.status(200).json(rows[0]);
+  } catch (error) {
+    return res.status(500).json({message: 'Server error'});
   }
 }
 
-function register(req,res){
+async function register(req,res){
     console.log(req.body);
     const body = req.body;
     const bodyData = [body.username,body.password, body.address, body.email, body.phone];
@@ -39,17 +46,18 @@ function register(req,res){
         return res.status(400).json({message: 'Invalid Bangladeshi phone number'});
       }
     } 
-    connection.query('INSERT INTO users(username,password,address,email,phone) values(?)',[bodyData],(err,rows)=>{
-      if(err){
-          console.log(err);
-          if(err.code == "ER_DUP_ENTRY"){
-            return res.status(400).json({message: 'username already exists'});
-          }
-      }else{
-        console.log("register successful");
-        return res.status(200).json({message: 'register successful'});
+    try {
+      await connection.query('INSERT INTO users(username,password,address,email,phone) values(?)',[bodyData]);
+      console.log("register successful");
+      return res.status(200).json({message: 'register successful'});
+    } catch (error) {
+      console.log(error);
+      if(error.code == "ER_DUP_ENTRY"){
+        return res.status(400).json({message: 'username already exists'});
+      }else {
+        return httpMessage.serverError(res);
       }
-  })
+    }
 }
 
 async function login(req, res) {
