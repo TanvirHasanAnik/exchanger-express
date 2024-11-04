@@ -19,7 +19,7 @@ create table products (
 category:
 create table category (
     id int not null auto_increment unique primary key,
-    productname varchar(30) not null unique
+    categoryname varchar(30) not null unique
 )
 
 create table expectedproduct (

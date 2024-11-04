@@ -78,17 +78,25 @@ async function addProduct(req,res){
   }
 }
 
-//-------------------------------------------------experimental--------------------------------
-function expectedCategoryId(req,res){
-    //load all expected category id of current user 
-    connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',userId,(err,expCategoryId)=>{
-        if(err){
-            console.log(err);
-        }else{
-          userIdWithExpectedProduct(expCategoryId,req,res);
-        }
-    });
+async function expectedCategoryList(req,res){
+  if(req.session.user){
+    const userId = req.session.user.id;
+
+    try {
+      //load all expected category name of current user 
+      const [result] = await connection.query('SELECT expectedproduct.id,categoryname FROM category INNER JOIN expectedproduct ON expectedproduct.categoryid = category.id WHERE expectedproduct.userid = ?',userId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.log(error);
+      return httpMessage.serverError(res);
+    }
+
+  }else{
+    return httpMessage.notLoggedInError(res);
+  }
 }
+
+//-------------------------------------------------experimental--------------------------------
 
 function userIdWithExpectedProduct(expCategoryId,req,res){
   var ids = [];
@@ -254,7 +262,7 @@ async function addExpectedProduct(req,res){
         console.log(rows);
         return res.status(200).json({message: 'Item Added'});
       } catch (error) {
-          console.log(err);
+          console.log(error);
           if(error.code == "ER_DUP_ENTRY"){
             return res.status(400).json({message: 'category already exists'});
           }else{
@@ -269,4 +277,30 @@ async function addExpectedProduct(req,res){
   }
 }
 
-module.exports = {productsList,addProduct,getCategory,addExpectedProduct,getExpectedProductList,matchUser,allProductList,expectedProductList};
+async function deleteExpectedProduct(req,res){
+  if(req.session.user){
+    try {
+      const expectedProductId = req.body.id;
+      await connection.query('DELETE FROM expectedproduct WHERE id = ?',expectedProductId);
+      return httpMessage.success(res);
+    } catch (error) {
+      console.log(error);
+      return httpMessage.serverError(res);
+    }
+  }else{
+    return httpMessage.notLoggedInError(res);
+  }
+}
+
+module.exports = {
+  productsList,
+  addProduct,
+  getCategory,
+  addExpectedProduct,
+  getExpectedProductList,
+  matchUser,
+  allProductList,
+  expectedProductList,
+  expectedCategoryList,
+  deleteExpectedProduct
+};

@@ -9,6 +9,7 @@ Product list: get | http://localhost:3000/user-products/products-list
 Add new product: post | http://localhost:3000/user-products/add-product
 category details: get | http://localhost:3000/user-products/get-category
 expected product list: get | http://localhost:3000/user-products/expected-products-list
+expected category list: get | http://localhost:3000/user-products/expected-category-list
 
 add review: post | http://localhost:3000/review/add-review
 get review: get | http://localhost:3000/review/get-review?userid=0
