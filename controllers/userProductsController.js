@@ -37,6 +37,25 @@ async function expectedProductList(req,res){
   }
 }
 
+
+
+async function getProduct(req,res){
+  
+  if(req.query.productid){
+    const productId = req.query.productid;
+    try {
+      const [result] = await connection.query('SELECT products.userid,categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id WHERE products.id = ?',productId);
+      return res.status(200).json(result[0]);
+    } catch (error) {
+      console.error('Database query error:', error);
+      
+      return httpMessage.serverError(res);
+    }
+  }else{
+    return httpMessage.serverError(res);
+  }
+}
+
 async function productsList(req,res){
     var user;
       if(req.query.userid){
@@ -302,5 +321,6 @@ module.exports = {
   allProductList,
   expectedProductList,
   expectedCategoryList,
-  deleteExpectedProduct
+  deleteExpectedProduct,
+  getProduct
 };
