@@ -1,7 +1,20 @@
 var connection = require('../connection');
 var httpMessage = require('../httpMessage');
-const vader = require('vader-sentiment');
+const { exec } = require('child_process');
 
+function analyzeSentiment(text) {
+    return new Promise((resolve, reject) => {
+        exec(`python analyze.py "${text}"`, (error, stdout, stderr) => {
+            if (error) {
+                reject(`Error: ${error.message}`);
+            } else if (stderr) {
+                reject(`stderr: ${stderr}`);
+            } else {
+                resolve(JSON.parse(stdout));
+            }
+        });
+    });
+}
 async function addReview(req, res) {
 if(req.session.user){
     try {
@@ -9,12 +22,8 @@ if(req.session.user){
         const reviewerid = req.session.user.id;
         const content = req.body.content;
         var positive = true;
-        function analyzeSentiment(text) {
-            const intensity = vader.SentimentIntensityAnalyzer.polarity_scores(text);
-            return intensity;
-        }
         
-        const result = analyzeSentiment(content);
+        const result = await analyzeSentiment(content);
         console.log('Sentiment Analysis Result:', result);
         if(result.compound < -0.05){
             positive = false;
@@ -93,14 +102,7 @@ async function getReviewCounts(req, res) {
 
 async function sentiment (req,res) {
     const text = req.body.text;
-    function analyzeSentiment(text) {
-        const intensity = vader.SentimentIntensityAnalyzer.polarity_scores(text);
-        return intensity;
-    }
-    
-    // Example usage
-    const textToAnalyze = "The user was very friendly but his product was defective";
-    const result = analyzeSentiment(text);
+    const result = await analyzeSentiment(text);
     console.log('Sentiment Analysis Result:', result);
     return res.status(200).json(result);
 }

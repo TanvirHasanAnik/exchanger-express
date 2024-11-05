@@ -15,3 +15,8 @@ add review: post | http://localhost:3000/review/add-review
 get review: get | http://localhost:3000/review/get-review?userid=0
 review count: get | http://localhost:3000/review/get-review-count?userid=0
 Sentiment check: get | http://localhost:3000/review/sentiment
+
+---
+
+install python
+path: C:\Users\ (username)\AppData\Local\Programs\Python\Python313 to both user and system environment
