@@ -3,7 +3,7 @@ var httpMessage = require('../httpMessage');
 
 async function allProductList(req,res){
   try {
-    const [result] = await connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id');
+    const [result] = await connection.query('SELECT products.id,categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id');
     return res.status(200).json(result);
   } catch (error) {
     console.error('Database query error:', error);
@@ -22,7 +22,7 @@ async function expectedProductList(req,res){
       const [result] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',user.id);
       
       for(const expCatId of result){
-        const [rows] = await connection.query('SELECT categoryname,productTitle,productDescription from products inner join category on category.id = products.categoryid where category.id = ?',[expCatId.categoryid]);
+        const [rows] = await connection.query('SELECT products.id,categoryname,productTitle,productDescription from products inner join category on category.id = products.categoryid where category.id = ?',[expCatId.categoryid]);
         rows.forEach(row => {
           arr.push(row);
         });
