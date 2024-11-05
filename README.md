@@ -14,9 +14,11 @@ expected category list: get | http://localhost:3000/user-products/expected-categ
 add review: post | http://localhost:3000/review/add-review
 get review: get | http://localhost:3000/review/get-review?userid=0
 review count: get | http://localhost:3000/review/get-review-count?userid=0
-Sentiment check: get | http://localhost:3000/review/sentiment
+
+
+Sentiment check: get | http://localhost:3000/review/sentiment (body = {"text":"testing sentiment"})
 
 ---
-
 install python
 path: C:\Users\ (username)\AppData\Local\Programs\Python\Python313 to both user and system environment
+go to path and use bash to install - pip install vaderSentiment
