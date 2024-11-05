@@ -196,7 +196,9 @@ async function matchUser(req,res){
     for(const x of userIdWithExpectedProduct){
       console.log(x);
       const [expUser] = await connection.query('SELECT * FROM users WHERE users.id = ?',[x]);
-      userArray.push(expUser[0]);
+      if(userId != expUser[0].id){
+        userArray.push(expUser[0]);
+      }
     }
   
     return res.status(200).json(userArray);
