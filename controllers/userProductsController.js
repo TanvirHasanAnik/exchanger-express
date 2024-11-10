@@ -3,7 +3,7 @@ var httpMessage = require('../httpMessage');
 
 async function allProductList(req,res){
   try {
-    const [result] = await connection.query('SELECT products.id,categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id');
+    const [result] = await connection.query('SELECT products.id,categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id ORDER BY products.id DESC');
     return res.status(200).json(result);
   } catch (error) {
     console.error('Database query error:', error);
@@ -22,7 +22,7 @@ async function expectedProductList(req,res){
       const [result] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',user.id);
       
       for(const expCatId of result){
-        const [rows] = await connection.query('SELECT products.id,categoryname,productTitle,productDescription from products inner join category on category.id = products.categoryid where category.id = ?',[expCatId.categoryid]);
+        const [rows] = await connection.query('SELECT products.id,categoryname,productTitle,productDescription from products inner join category on category.id = products.categoryid where category.id = ?  ORDER BY products.id DESC',[expCatId.categoryid]);
         rows.forEach(row => {
           arr.push(row);
         });
@@ -38,7 +38,7 @@ async function expectedProductList(req,res){
 }
 
 
-
+//for single product page
 async function getProduct(req,res){
   
   if(req.query.productid){
@@ -56,6 +56,7 @@ async function getProduct(req,res){
   }
 }
 
+//for list of owned products
 async function productsList(req,res){
     var user;
       if(req.query.userid){
@@ -70,7 +71,7 @@ async function productsList(req,res){
       console.log('Please sign in')
       return res.status(400).json({message: 'Not logged in'});
     }
-    const [products] = await connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?',user);
+    const [products] = await connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?  ORDER BY products.id DESC',user);
     console.log(products);
     return res.status(200).json(products);
 }

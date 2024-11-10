@@ -57,7 +57,7 @@ async function getReview(req, res) {
     }
 
     try {
-        const [reviews] = await connection.query('SELECT username,content FROM review INNER JOIN users ON review.reviewerid = users.id WHERE review.userid = ?',userid);
+        const [reviews] = await connection.query('SELECT username,content FROM review INNER JOIN users ON review.reviewerid = users.id WHERE review.userid = ?  ORDER BY review.id DESC',userid);
         return res.status(200).json(reviews);
     } catch (error) {
         return httpMessage.serverError(res);
