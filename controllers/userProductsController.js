@@ -115,63 +115,7 @@ async function expectedCategoryList(req,res){
   }
 }
 
-//-------------------------------------------------experimental--------------------------------
-
-function userIdWithExpectedProduct(expCategoryId,req,res){
-  var ids = [];
-  expCategoryId.forEach(ecid => {
-    //load all user id that has product of this category 
-    connection.query('SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE categoryid = ?',ecid,(err,userId)=>{
-        if(err){
-            console.log(err);
-        }else{
-          userId.forEach(id => {
-            if(!ids.includes(id)){
-              ids.push(id);
-            }
-          });
-          if(expCategoryId[expCategoryId.length-1] === ecid){
-            asd(ids,req,res);
-            console.log(ids);
-          }
-        }
-    })
-  });
-}
-function asd(ids,req,res){
-  var matchedid = [];
-  if(req.session.user){
-  const user = req.session.user;
-  console.log(`session id:${req.sessionID}, user id ${user.id}`);
-  connection.query('SELECT categoryname,productTitle,productDescription from category inner join products on products.categoryid = category.id where products.userid = ?',[user.id],(err,userProducts)=>{
-  
-  if(err){
-      console.log(err);
-      return res.err.status;
-  }else{
-      ids.forEach(expProductOwner => {
-        connection.query('SELECT categoryid FROM expectedproduct WHERE expectedproduct.userid = ?',expProductOwner,(err,ProductOwnerExpcategoryid)=>{
-          if(err){
-              console.log(err);
-          }else{
-            ProductOwnerExpcategoryid.forEach(poEcid => {
-              userProducts.forEach(userP => {
-                if(poEcid == userP){
-                  matchedid.push(expProductOwner);
-                  if(ids[ids.length-1] === expProductOwner){
-                    res.status(200).json(matchedid);
-                    console.log(matchedid);
-                  }
-                }
-              })
-            });
-          }
-      })
-      })
-  }
-})
-}
-}
+//-------------------------------------------------Match User--------------------------------
 async function matchUser(req,res){
   if(req.session.user){
     const user = req.session.user;
@@ -179,6 +123,7 @@ async function matchUser(req,res){
     const userIdWithExpectedProduct = [];
     const userArray = [];
     const [expectedCategoryId] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',userId);
+    const [userOwnedCategoryId] = await connection.query('SELECT DISTINCT categoryid FROM products WHERE userid = ?',userId);
     
     console.log(expectedCategoryId);
     for (const expCatId of expectedCategoryId) {
@@ -191,52 +136,30 @@ async function matchUser(req,res){
               userIdWithExpectedProduct.push(row.id);
           }
       });
-  }
-    console.log("Exp product userid: "+userIdWithExpectedProduct);
-    for(const x of userIdWithExpectedProduct){
-      console.log(x);
-      const [expUser] = await connection.query('SELECT * FROM users WHERE users.id = ?',[x]);
-      if(userId != expUser[0].id){
-        userArray.push(expUser[0]);
+    }
+    outerloop:
+    for (const x of userIdWithExpectedProduct) {
+      const [expCatId] = await connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?', [x]);
+    
+      for (const matchingUsercatId of expCatId) {
+        for (const userCatId of userOwnedCategoryId) {
+          console.log(userCatId.categoryid, matchingUsercatId.categoryid);
+
+          if (userCatId.categoryid === matchingUsercatId.categoryid) {
+            console.log(x);
+            
+            const [expUser] = await connection.query('SELECT * FROM users WHERE users.id = ?', [x]);
+            
+            if (userId != expUser[0].id) {
+              userArray.push(expUser[0]);
+            }
+            continue outerloop;
+          }
+        }
       }
     }
   
     return res.status(200).json(userArray);
-  }else{
-    return res.status(400).json({message: 'Not logged in'});
-  }
-}
-
-function matchUserOld(req,res){
-  if(req.session.user){
-    const user = req.session.user;
-    //load all expected category id of current user 
-    var usersWithExpectedProducts = [];
-    connection.query('SELECT categoryid FROM expectedproduct WHERE userid = ?',user.id,(err,expCategoryId)=>{
-        if(err){
-            console.log(err);
-        }else{
-          expCategoryId.forEach(categoryId => {
-            //load all user id that has product of this category 
-            connection.query('SELECT DISTINCT users.id FROM users inner join products on products.userid = users.id WHERE categoryid = ?',categoryId,(err,userId)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                  userId.forEach(id => {
-                    if(!usersWithExpectedProducts.includes(id)){
-                      usersWithExpectedProducts.push(id);
-                      if(expCategoryId[expCategoryId.length-1] === categoryId){
-                        console.log(usersWithExpectedProducts);
-                      }
-                    }
-                  });
-                }
-            })
-          });
-        }
-    });
-    console.log(usersWithExpectedProducts);
-    
   }else{
     return res.status(400).json({message: 'Not logged in'});
   }
