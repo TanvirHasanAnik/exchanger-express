@@ -8,6 +8,7 @@ create table users (
     phone varchar(14),
 )
 
+product:
 create table products (
     id int not null auto_increment unique primary key,
     userid int not null,
@@ -22,12 +23,14 @@ create table category (
     categoryname varchar(30) not null unique
 )
 
+expectedproduct:
 create table expectedproduct (
     id int not null auto_increment unique primary key,
     userid int not null,
     categoryid int not null
 );
 
+review:
 create table review (
     id int not null auto_increment unique primary key,
     userid int not null,
