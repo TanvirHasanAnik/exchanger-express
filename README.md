@@ -1,21 +1,25 @@
 Front end code repository: https://github.com/TanvirHasanAnik/exchanger-jquery.git
 
 List of api urls:
-User Login: post | http://localhost:3000/user/login
-User Register: post | http://localhost:3000/user/register
-Logout : post | http://localhost:3000/user/logout
-Profile details: get | http://localhost:3000/user/get-profile
-Product list: get | http://localhost:3000/user-products/products-list
-Add new product: post | http://localhost:3000/user-products/add-product
-category details: get | http://localhost:3000/user-products/get-category
-expected product list: get | http://localhost:3000/user-products/expected-products-list
-expected category list: get | http://localhost:3000/user-products/expected-category-list
+User Login: POST | http://localhost:3000/user/login
+User Register: POST | http://localhost:3000/user/register
+Logout : POST | http://localhost:3000/user/logout
+Profile details: GET | http://localhost:3000/user/get-profile
+Product list: GET | http://localhost:3000/user-products/products-list
+Product details: GET | http://localhost:3000/user-products/get-product?productid=1
+All Product list: GET | http://localhost:3000/user-products/all-products-list
+Add new product: POST | http://localhost:3000/user-products/add-product
+category details: GET | http://localhost:3000/user-products/get-category
+expected product list: GET | http://localhost:3000/user-products/expected-products-list
+expected category list: GET | http://localhost:3000/user-products/expected-category-list
+Delete expected product: POST | http://localhost:3000/user-products/delete-expected-product
 
-add review: post | http://localhost:3000/review/add-review
-get review: get | http://localhost:3000/review/get-review?userid=0
-review count: get | http://localhost:3000/review/get-review-count?userid=0
+add review: POST | http://localhost:3000/review/add-review
+get review: GET | http://localhost:3000/review/get-review?userid=0
+review count: GET | http://localhost:3000/review/get-review-count?userid=0
 
-Sentiment check: get | http://localhost:3000/review/sentiment (body = {"text":"testing sentiment"})
+Match Users: GET | http://localhost:3000/user-products/match-user
+Sentiment check: GET | http://localhost:3000/review/sentiment (body = {"text":"testing sentiment"})
 
 ---
 
